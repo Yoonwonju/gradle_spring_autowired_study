@@ -1,5 +1,6 @@
 package gradle_spring_autowired_study.config;
 
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -9,6 +10,7 @@ import gradle_spring_autowired_study.spring.MemberInfoPrinter;
 import gradle_spring_autowired_study.spring.MemberListPrinter;
 import gradle_spring_autowired_study.spring.MemberPrinter;
 import gradle_spring_autowired_study.spring.MemberRegisterService;
+import gradle_spring_autowired_study.spring.MemberSummaryPrinter;
 import gradle_spring_autowired_study.spring.VersionPrinter;
 
 @Configuration			//해당 클래스를 스프링 설정 클래스로 지정한다.
@@ -19,33 +21,45 @@ public class AppCtx {
 		return new MemberDao();
 	}
 	
+	
+	// 직접주입 하드코딩함
 	@Bean
 	public MemberRegisterService memberRegSvc() {
-		return new MemberRegisterService(memberDao());
+//		return new MemberRegisterService(memberDao());
+		return new MemberRegisterService();
 	}
 	
+	// @autowired 사용하여 자동주입 -> setter method 필요가없다
 	@Bean
-	public ChangePasswordService changepPwdSvc() {
+	public ChangePasswordService changePwdSvc() {
 		ChangePasswordService pwdSvc = new ChangePasswordService();
-		pwdSvc.setMemberDao(memberDao());
+//		pwdSvc.setMemberDao(memberDao());		//자동주입되어 필요가없어요
 		return pwdSvc;
 	}
 	
 	@Bean
-	public MemberPrinter memberPrinter() {
+	@Qualifier("printer")
+	public MemberPrinter memberPrinter1() {
 		return new MemberPrinter();
 	}
 	
 	@Bean
+	@Qualifier("summaryPrinter")
+	public MemberSummaryPrinter memberPrinter2() {
+		return new MemberSummaryPrinter();
+	}
+	
+	@Bean
 	public MemberListPrinter listPrinter() {
-		return new MemberListPrinter(memberDao(), memberPrinter());
+//		return new MemberListPrinter(memberDao(), memberPrinter());
+		return new MemberListPrinter();
 	}
 	
 	@Bean
 	public MemberInfoPrinter memberInfoPrinter() {
 		MemberInfoPrinter infoPrinter = new MemberInfoPrinter();
 		infoPrinter.setMemberDao(memberDao());
-		infoPrinter.setPrinter(memberPrinter());
+		infoPrinter.setPrinter(memberPrinter1());
 		return infoPrinter;
 	}
 	
@@ -57,4 +71,11 @@ public class AppCtx {
 		return versionPrinter;
 	}
 
+	@Bean
+	  public MemberInfoPrinter infoPrinter() {
+	      MemberInfoPrinter infoPrinter = new MemberInfoPrinter();
+//	      infoPrinter.setMemberDao(memberDao());
+//	      infoPrinter.setPrinter(memberPrinter());
+	      return infoPrinter;
+	}
 }
